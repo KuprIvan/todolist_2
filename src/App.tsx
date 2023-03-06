@@ -26,6 +26,16 @@ function App():JSX.Element {
         setTasks(newTasks)
     }
 
+    const changeStatus = (id: string, isDone: boolean) => {
+        // returns first element that satisfies the provided testing function
+        let task = tasks.find(t => t.id === id)
+
+        if (task) {
+            task.isDone = isDone
+            setTasks([...tasks])
+        }
+    }
+
     // Filters
 
     let [filter, setFilter] = useState<FilterValuesType>('all')
@@ -52,6 +62,8 @@ function App():JSX.Element {
                 removeTask={removeTask}
                 changeFilter={changeFilter}
                 addNewTask={addNewTask}
+                changeStatus={changeStatus}
+                filter={filter}
             />
         </div>
     );
