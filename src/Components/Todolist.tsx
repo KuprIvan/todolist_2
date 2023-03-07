@@ -1,21 +1,25 @@
 import React, {FC, useState, ChangeEvent, KeyboardEvent} from 'react';
 import {FilterValuesType} from "../App";
 
+//---- Types ---- //
 export type TaskType = {
     id: string
     title: string
     isDone: boolean
 }
-
 type PropsType = {
     title: string
     filter: FilterValuesType
     tasks: Array<TaskType>
-    removeTask: (taskId: string) => void
-    changeFilter: (filterValue: FilterValuesType) => void
-    addNewTask: (title: string) => void
-    changeStatus: (id: string, isDone: boolean) => void
+    removeTask: (todoListId: string, taskId: string) => void
+    changeFilter: (id: string, filterValue: FilterValuesType) => void
+    addNewTask: (todoListId: string, title: string) => void
+    changeStatus: (todoListId: string, id: string, isDone: boolean) => void
+    removeTodoList: (todoListId: string) => void
+    todoListId: string
 }
+//---- Types ---- //
+
 
 const Todolist: FC<PropsType> = (props): JSX.Element => {
     let [title, setTitle] = useState<string>('')
@@ -23,7 +27,7 @@ const Todolist: FC<PropsType> = (props): JSX.Element => {
 
     const addTask = () => {
         if (title.trim() !== '') {
-            props.addNewTask(title);
+            props.addNewTask(props.todoListId, title);
             setTitle('')
         } else {
             setError('Title is required')
@@ -39,19 +43,20 @@ const Todolist: FC<PropsType> = (props): JSX.Element => {
         }
     }
 
-    const onClickAllFilterHandler = () => {
-        props.changeFilter('all')
-    }
-    const onClickActiveFilterHandler = () => {
-        props.changeFilter('active')
-    }
-    const onClickCompletedFilterHandler = () => {
-        props.changeFilter('completed')
-    }
+    const onClickAllFilterHandler = () => {props.changeFilter(props.todoListId, 'all')}
+    const onClickActiveFilterHandler = () => {props.changeFilter(props.todoListId, 'active')}
+    const onClickCompletedFilterHandler = () => {props.changeFilter(props.todoListId, 'completed')}
 
+    const removeTodoListHandler = () => {
+        props.removeTodoList(props.todoListId)
+    }
 
     return <div>
-        <h3>{props.title}</h3>
+        <h3>
+            {props.title}
+            <button onClick={removeTodoListHandler}>x</button>
+        </h3>
+
         <div>
             <input
                 value={title}
@@ -63,11 +68,10 @@ const Todolist: FC<PropsType> = (props): JSX.Element => {
         </div>
         <ul>
             {props.tasks.map(t => {
-
-                const oncBtnClickHandler = () => props.removeTask(t.id)
+                const oncBtnClickHandler = () => props.removeTask(props.todoListId, t.id)
                 const onChangeCheckboxHandler = (e: ChangeEvent<HTMLInputElement>) => {
                     let newIsDoneValue = e.currentTarget.checked
-                    props.changeStatus(t.id, newIsDoneValue)
+                    props.changeStatus(props.todoListId, t.id, newIsDoneValue)
                 }
 
                 return <li key={t.id} className={t.isDone ? 'is-done' : ''}>
@@ -78,9 +82,14 @@ const Todolist: FC<PropsType> = (props): JSX.Element => {
             })}
         </ul>
         <div>
-            <button className={props.filter === 'all' ? 'active-filter' : ''} onClick={onClickAllFilterHandler}>All</button>
-            <button className={props.filter === 'active' ? 'active-filter' : ''} onClick={onClickActiveFilterHandler}>Active</button>
-            <button className={props.filter === 'completed' ? 'active-filter' : ''} onClick={onClickCompletedFilterHandler}>Completed</button>
+            <button className={props.filter === 'all' ? 'active-filter' : ''} onClick={onClickAllFilterHandler}>All
+            </button>
+            <button className={props.filter === 'active' ? 'active-filter' : ''}
+                    onClick={onClickActiveFilterHandler}>Active
+            </button>
+            <button className={props.filter === 'completed' ? 'active-filter' : ''}
+                    onClick={onClickCompletedFilterHandler}>Completed
+            </button>
         </div>
     </div>
 };
